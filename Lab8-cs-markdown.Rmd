@@ -77,4 +77,39 @@ tx_owin <- as(tx_sp, "owin") #makes an o window
 all_ppp <- ppp(spill_ppp$x, spill_ppp$y, window = tx_owin)
 ```
 
+###A density plots
+```{r}
+plot(density(all_ppp, sigma = 0.3))
+```
+
+##Quadrat test for spatial evenness
+```{r}
+oil_qt <- quadrat.test(all_ppp, nx = 5, ny = 5) #nx and ny are the number of regions in the x and y directions, respectively
+oil_qt #reject null hypothesis that data are csr. In otherwords, conclude that data are csr
+
+plot(all_ppp) #crosses represent "illegal" points
+plot(oil_qt, add = TRUE, cex = 0.4)
+```
+
+##G - Function for Nearest Neighbor Analysis
+```{r}
+r <- seq(0,1, by = 0.01)
+
+oil_gfun <- envelope(all_ppp, fun = Gest, r = r, nsim = 100)
+
+ggplot(oil_gfun, aes(x = r, y = obs)) + 
+  geom_line(color = "black") +
+  geom_line(aes(x = r, y = theo), color = "red") #our data has a higher proportion of point data with closer nearest neighbors thancsr data would
+```
+
+##Nearest neighbor using the L-function (Ripley's K, standardized)
+```{r}
+r2 <- seq(0,3, by = 0.5)
+oil_lfun <- envelope(all_ppp, fun = Lest, r = r2, nsim = 20, global = TRUE)
+
+ggplot(oil_lfun, aes(x = r2, y = obs)) +
+  geom_line(color = "black") +
+  geom_line(aes(x = r2, y = theo), color = "blue")
+#takeaway is still that there are higher densities of neighbors at small distances than there are for csr data
+```
 
